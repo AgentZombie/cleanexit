@@ -10,6 +10,7 @@ var (
 	cleanupFns = []func(){}
 	SigInt     = os.Interrupt
 	once       = &sync.Once{}
+	final      = func() { os.Exit(0) }
 )
 
 func Cleanup() {
@@ -20,11 +21,15 @@ func cleanup() {
 	for _, f := range cleanupFns {
 		f()
 	}
-	os.Exit(0)
+	final()
 }
 
 func Register(f func()) {
 	cleanupFns = append(cleanupFns, f)
+}
+
+func Finally(f func()) {
+	final = f
 }
 
 func OnSignals(sig ...os.Signal) {
